@@ -9,31 +9,114 @@ window.innerWidth/window.innerHeight,
 
 const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(window.innerWidth*0.7,600);
-
 document.getElementById("viewer").appendChild(renderer.domElement);
 
-const light = new THREE.DirectionalLight(0xffffff,1);
-light.position.set(5,10,7);
-scene.add(light);
+scene.background = new THREE.Color(0xf2f2f2);
 
-scene.add(new THREE.AmbientLight(0xffffff,0.5));
+const light1 = new THREE.DirectionalLight(0xffffff,1);
+light1.position.set(5,10,7);
+scene.add(light1);
+
+scene.add(new THREE.AmbientLight(0xffffff,0.8));
 
 const material = new THREE.MeshStandardMaterial({
-color:0xdddddd
+color:0xe6e1d9,
+roughness:0.8
 });
 
-const geometry = new THREE.CylinderGeometry(2,2,8,32);
-const body = new THREE.Mesh(geometry,material);
-scene.add(body);
+const mannequin = new THREE.Group();
 
-camera.position.z = 10;
 
-function animate(){
-requestAnimationFrame(animate);
-renderer.render(scene,camera);
+// BODY SHAPE PROFILE (important)
+let bodyPoints = [
+
+new THREE.Vector2(0.0,0),
+new THREE.Vector2(2.0,0),
+
+new THREE.Vector2(2.2,1.2),  // hip
+
+new THREE.Vector2(1.7,2.5),  // waist
+
+new THREE.Vector2(2.0,3.5),  // bust
+
+new THREE.Vector2(1.8,4.3),  // upper chest
+
+new THREE.Vector2(0.8,4.8)   // neck
+];
+
+let bodyGeometry = new THREE.LatheGeometry(bodyPoints,64);
+
+const body = new THREE.Mesh(bodyGeometry,material);
+body.position.y = 0;
+mannequin.add(body);
+
+
+// HEAD
+const head = new THREE.Mesh(
+new THREE.SphereGeometry(0.9,32,32),
+material
+);
+
+head.position.y = 5.9;
+mannequin.add(head);
+
+
+// NECK
+const neck = new THREE.Mesh(
+new THREE.CylinderGeometry(0.45,0.5,0.7,32),
+material
+);
+
+neck.position.y = 5.2;
+mannequin.add(neck);
+
+
+// SIMPLE ARMS
+
+const armMaterial = new THREE.MeshStandardMaterial({
+color:0xd8c8b0
+});
+
+function createArm(xSide){
+
+const armGroup = new THREE.Group();
+
+const upper = new THREE.Mesh(
+new THREE.CylinderGeometry(0.3,0.35,2,16),
+armMaterial
+);
+
+upper.position.y = 3.5;
+
+const lower = new THREE.Mesh(
+new THREE.CylinderGeometry(0.25,0.3,2,16),
+armMaterial
+);
+
+lower.position.y = 2;
+
+armGroup.add(upper);
+armGroup.add(lower);
+
+armGroup.position.x = xSide;
+
+return armGroup;
 }
 
-animate();
+const armLeft = createArm(-2.4);
+const armRight = createArm(2.4);
+
+mannequin.add(armLeft);
+mannequin.add(armRight);
+
+
+scene.add(mannequin);
+
+camera.position.z = 9;
+
+
+
+// MEASUREMENT CONTROLS
 
 const bust = document.getElementById("bust");
 const waist = document.getElementById("waist");
@@ -45,10 +128,15 @@ function updateBody(){
 let bustScale = bust.value / 36;
 let waistScale = waist.value / 28;
 let hipScale = hip.value / 40;
+let shoulderScale = shoulder.value / 16;
 
 body.scale.x = (bustScale + hipScale)/2;
 body.scale.z = (bustScale + hipScale)/2;
+
 body.scale.y = waistScale;
+
+armLeft.position.x = -2.4 * shoulderScale;
+armRight.position.x = 2.4 * shoulderScale;
 
 }
 
@@ -57,22 +145,18 @@ waist.oninput = updateBody;
 hip.oninput = updateBody;
 shoulder.oninput = updateBody;
 
-document.getElementById("frontView").onclick = () =>{
-camera.position.set(0,0,10);
-};
 
-document.getElementById("backView").onclick = () =>{
-camera.position.set(0,0,-10);
-};
 
-document.getElementById("reset").onclick = () =>{
-bust.value = 36;
-waist.value = 28;
-hip.value = 40;
-shoulder.value = 16;
-updateBody();
-};
+// ANIMATION
 
-document.getElementById("exit").onclick = () =>{
-window.close();
-};
+function animate(){
+
+requestAnimationFrame(animate);
+
+mannequin.rotation.y += 0.003;
+
+renderer.render(scene,camera);
+
+}
+
+animate();
