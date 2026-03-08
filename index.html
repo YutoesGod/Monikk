@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>3D Dress Form</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+<h1>3D Digital Dress Form</h1>
+</header>
+
+<div class="container">
+
+<div id="viewer"></div>
+
+<div class="controls">
+
+<h2>Measurements</h2>
+
+<label>Bust</label>
+<input type="range" id="bust" min="30" max="60" value="36">
+
+<label>Waist</label>
+<input type="range" id="waist" min="20" max="50" value="28">
+
+<label>Hip</label>
+<input type="range" id="hip" min="30" max="70" value="40">
+
+<label>Shoulder</label>
+<input type="range" id="shoulder" min="12" max="26" value="16">
+
+<div class="buttons">
+<button id="frontView">Front</button>
+<button id="backView">Back</button>
+<button id="reset">Reset</button>
+<button id="exit">Exit</button>
+</div>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
